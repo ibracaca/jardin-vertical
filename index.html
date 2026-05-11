@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jardin Vertical Intelligent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* === SECTION HUMIDITÉ === */
+        .humidity-section {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .humidity-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .humidity-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .humidity-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .humidity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b 0%, #ffa500 50%, #51cf66 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* === SECTION ÉTAT === */
+        .status-section {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .status-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px 25px;
+            border-radius: 10px;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .status-indicator.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-indicator.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-indicator.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.ok .status-dot {
+            background: #28a745;
+        }
+
+        .status-indicator.warning .status-dot {
+            background: #ffc107;
+        }
+
+        .status-indicator.error .status-dot {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* === SECTION LEDs === */
+        .leds-section {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .leds-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .leds-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .led {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .led-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .led-circle.on {
+            box-shadow: 0 0 20px currentColor;
+            animation: ledGlow 1s infinite alternate;
+        }
+
+        @keyframes ledGlow {
+            0% { box-shadow: 0 0 20px currentColor; }
+            100% { box-shadow: 0 0 30px currentColor; }
+        }
+
+        .led-green .led-circle {
+            background: #d4edda;
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .led-green .led-circle.on {
+            background: #28a745;
+            color: white;
+        }
+
+        .led-red .led-circle {
+            background: #f8d7da;
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .led-red .led-circle.on {
+            background: #dc3545;
+            color: white;
+        }
+
+        .led-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        /* === SECTION CONTRÔLE === */
+        .control-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        /* === SECTION INFO === */
+        .info-section {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .info-item {
+            margin-bottom: 8px;
+        }
+
+        .info-item strong {
+            color: #333;
+        }
+
+        /* === STATUT CONNEXION === */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .connection-status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .connection-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-circle {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .humidity-value {
+                font-size: 36px;
+            }
+
+            .leds-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🌱 Jardin Vertical</h1>
+            <p>Système d'arrosage intelligent STI2D</p>
+        </header>
+
+        <!-- SECTION HUMIDITÉ -->
+        <div class="humidity-section">
+            <div class="humidity-label">Humidité du sol</div>
+            <div class="humidity-value" id="humidityPercent">--</div>
+            <div class="humidity-bar">
+                <div class="humidity-fill" id="humidityFill" style="width: 0%">
+                    <span id="humidityFillText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION ÉTAT -->
+        <div class="status-section">
+            <div class="status-label">État du système</div>
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-dot"></span>
+                <span id="statusText">En attente...</span>
+            </div>
+        </div>
+
+        <!-- SECTION LEDs -->
+        <div class="leds-section">
+            <div class="leds-label">État des LEDs</div>
+            <div class="leds-container">
+                <div class="led led-green">
+                    <div class="led-circle" id="ledGreen">✓</div>
+                    <div class="led-label">Vert<br>(OK)</div>
+                </div>
+                <div class="led led-red">
+                    <div class="led-circle" id="ledRed">!</div>
+                    <div class="led-label">Rouge<br>(Sec)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION CONTRÔLE -->
+        <div class="control-section">
+            <button class="btn btn-primary" id="refreshBtn">🔄 Actualiser</button>
+            <button class="btn btn-secondary" id="resetBtn">↺ Réinitialiser</button>
+        </div>
+
+        <!-- SECTION INFO -->
+        <div class="info-section">
+            <div class="info-item">
+                <strong>Valeur brute :</strong> <span id="rawValue">--</span>
+            </div>
+            <div class="info-item">
+                <strong>Seuil arrosage :</strong> < 400 (sol sec)
+            </div>
+            <div class="info-item">
+                <strong>Seuil optimal :</strong> > 700 (humidité OK)
+            </div>
+            <div class="info-item">
+                <strong>Mise à jour :</strong> Toutes les 2 secondes
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUT CONNEXION -->
+    <div class="connection-status offline" id="connectionStatus">
+        <span class="status-circle"></span>
+        <span id="connectionText">Hors ligne</span>
+    </div>
+
+    <script>
+        // =====================================
+        // SIMULATION DES DONNÉES
+        // =====================================
+        // NOTE: Cette version simule les données.
+        // Pour une vraie connexion Arduino, voir les instructions d'intégration.
+
+        let humidityData = {
+            humidity: 50,
+            status: 'OK',
+            raw: 650
+        };
+
+        // === FONCTION : SIMULER LES DONNÉES ===
+        function simulateData() {
+            // Simulation d'une fluctuation naturelle
+            const change = (Math.random() - 0.5) * 5;
+            humidityData.humidity = Math.max(0, Math.min(100, humidityData.humidity + change));
+            humidityData.raw = Math.round((humidityData.humidity / 100) * 1023);
+
+            // Logique d'état
+            if (humidityData.raw < 400) {
+                humidityData.status = 'DRY';
+            } else if (humidityData.raw > 700) {
+                humidityData.status = 'OK';
+            }
+
+            return humidityData;
+        }
+
+        // === FONCTION : METTRE À JOUR L'INTERFACE ===
+        function updateUI(data) {
+            // Humidité
+            const humidity = Math.round(data.humidity);
+            document.getElementById('humidityPercent').textContent = humidity + '%';
+            document.getElementById('humidityFill').style.width = humidity + '%';
+            document.getElementById('humidityFillText').textContent = humidity + '%';
+
+            // Valeur brute
+            document.getElementById('rawValue').textContent = data.raw;
+
+            // État
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const ledGreen = document.getElementById('ledGreen');
+            const ledRed = document.getElementById('ledRed');
+
+            statusIndicator.className = 'status-indicator';
+            ledGreen.className = 'led-circle';
+            ledRed.className = 'led-circle';
+
+            if (data.status === 'DRY') {
+                statusIndicator.classList.add('error');
+                statusText.textContent = '🚨 Arrosage requis';
+                ledRed.classList.add('on');
+                ledGreen.classList.remove('on');
+            } else if (data.status === 'OK') {
+                statusIndicator.classList.add('ok');
+                statusText.textContent = '✓ Humidité correcte';
+                ledGreen.classList.add('on');
+                ledRed.classList.remove('on');
+            } else {
+                statusIndicator.classList.add('warning');
+                statusText.textContent = '⚠ En attente...';
+                ledGreen.classList.remove('on');
+                ledRed.classList.remove('on');
+            }
+
+            // Statut connexion
+            updateConnectionStatus(true);
+        }
+
+        // === FONCTION : STATUT CONNEXION ===
+        function updateConnectionStatus(online) {
+            const status = document.getElementById('connectionStatus');
+            const text = document.getElementById('connectionText');
+
+            if (online) {
+                status.classList.remove('offline');
+                status.classList.add('online');
+                text.textContent = 'En ligne';
+            } else {
+                status.classList.remove('online');
+                status.classList.add('offline');
+                text.textContent = 'Hors ligne';
+            }
+        }
+
+        // === BOUTONS ===
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            simulateData();
+            updateUI(humidityData);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            humidityData = { humidity: 50, status: 'OK', raw: 650 };
+            updateUI(humidityData);
+        });
+
+        // === INITIALISATION ===
+        window.addEventListener('load', () => {
+            updateUI(humidityData);
+            
+            // Mise à jour auto toutes les 2 secondes
+            setInterval(() => {
+                simulateData();
+                updateUI(humidityData);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
